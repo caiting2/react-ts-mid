@@ -4,7 +4,6 @@ import { asyncGet } from '../utils/fetch'
 import { api } from '../enum/api'
 import { Student } from '../interface/Student'
 import { resp } from '../interface/resp'
-import HomePage from './HomePage';
 
 function App() {
 
@@ -44,7 +43,6 @@ function App() {
   return (
     <>
       <div className="container">
-        <HomePage />
         {studentList}
       </div>
     </>
