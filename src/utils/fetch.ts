@@ -35,6 +35,50 @@ export async function asyncPost(api: string, body: {} | FormData) {
     }
 }
 
+export async function asyncPut(api: string, body: {} | FormData): Promise<any> {
+    try {
+        const res: Response = await fetch(api, {
+            method: 'PUT',
+            credentials: 'include',
+            headers: body instanceof FormData
+                ? undefined
+                : {
+                    'Content-Type': 'application/json',
+                },
+            body: body instanceof FormData ? body : JSON.stringify(body),
+            mode: 'cors',
+        });
+
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
+        return await res.json();
+    } catch (error) {
+        console.error("Error in asyncPut:", error);
+        throw error;
+    }
+}
+
+export async function asyncDelete(api: string): Promise<any> {
+    try {
+        const res: Response = await fetch(api, {
+            method: 'DELETE',
+            credentials: 'include',
+            mode: 'cors',
+        });
+
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
+        return await res.json();
+    } catch (error) {
+        console.error("Error in asyncDelete:", error);
+        throw error;
+    }
+}
+
 export async function asyncPatch(api: string, body: {} | FormData) {
     const res: Response = await fetch(api, {
         method: 'PATCH',
