@@ -4,6 +4,7 @@ import { asyncGet } from '../utils/fetch'
 import { api } from '../enum/api'
 import { Student } from '../interface/Student'
 import { resp } from '../interface/resp'
+import { Insert } from './Insert'
 
 function App() {
 
@@ -25,6 +26,10 @@ function App() {
     }
   }, [])
 
+  const addStudent = (newStudent: Student) => {
+    setStudents((prevStudents) => [...prevStudents, newStudent]);
+  };
+
   const studentList = students ? students.map((student: Student) => {
     return (
       <div className='student' key={student._id}>
@@ -43,9 +48,12 @@ function App() {
   return (
     <>
       <div className="container">
-        {studentList}
-      </div>
+      <h2>學生資料</h2>
+      {studentList}
+
+    </div>
     </>
+    
   )
 }
 

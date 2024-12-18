@@ -1,32 +1,51 @@
-import React from 'react';
-import './Home.css'; // 可使用此檔案來儲存 CSS 樣式
+import React, { useState } from 'react';
+import  App  from './App';  
+import { Insert } from './Insert';  
+import { Update } from './Update';  
 
-function Home() {
+import '../style/Home.css';
+
+const Home: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'students' | 'insert' | 'update'>('students');
+
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'students':
+        return <App />;
+      case 'insert':
+        return <Insert />;
+      case 'update':
+        return <Update />;
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="container">
-      {/* Sidebar */}
+    <div className="home-container">
+      {/* 側邊欄 */}
       <div className="sidebar">
-        <img
-          src="https://via.placeholder.com/100"
-          alt="User"
-          className="profile-img"
-        />
-        <h2>賠管地頭蛇</h2>
+        <h2>學生管理系統</h2>
         <ul>
-          <li><a href="#">首頁</a></li>
-          <li><a href="#">所有學生</a></li>
-          <li><a href="#">新增學生</a></li>
-          <li><a href="#">修改學生資訊</a></li>
+          <li>
+            <button onClick={() => setActiveTab('students')}>所有學生</button>
+          </li>
+          <li>
+            <button onClick={() => setActiveTab('insert')}>新增學生資料</button>
+          </li>
+          <li>
+            <button onClick={() => setActiveTab('update')}>修改學生資料</button>
+          </li>
         </ul>
-        <div className="footer">StudentHub</div>
       </div>
 
-      {/* Main content */}
+      {/* 內容區 */}
       <div className="content">
-        <h1>409820379 <span>^^</span></h1>
+        {renderContent()}
       </div>
     </div>
   );
-}
+};
 
 export default Home;
