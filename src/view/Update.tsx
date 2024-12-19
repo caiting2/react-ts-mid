@@ -1,63 +1,98 @@
-import { StudentInfo} from '../componets/StudentInfo'
-import { Student } from '../interface/Student'
-import { api } from '../enum/api'
-import { resp } from '../interface/resp'
-import { asyncGet, asyncPut, asyncDelete} from '../utils/fetch'
-import { useParams } from 'react-router'
-import { useEffect, useRef, useState } from 'react'
+import React, { useState } from "react";
+import { asyncGet, asyncPut, asyncDelete } from "../utils/fetch";
+import { api } from "../enum/api";
+import { Student } from "../interface/Student";
+import { StudentInfo } from "../componets/StudentInfo";
 
-export const Update:React.FC = () => {
+export const Update: React.FC = () => {
+  const [sid, setSid] = useState<string>("");  
+  const [student, setStudent] = useState<Student | null>(null);  
+  const [loading, setLoading] = useState<boolean>(false);  
 
-    const _id = useParams().id
-
-    const [studentInfo, setStudent] = useState<Student>()
-
-    const cache = useRef<boolean>(false)
-
-    const submit = async (info:Student) =>{
-        const res:resp<Student> =await asyncPut(api.updateByID,info)
-        if(res.code ==200){
-            alert("修改成功");
-        }else{
-            alert(`修改失敗:${res.message}`)
+  // Handle student search by ID
+  const handleSearch = async () => {
+    if (sid) {
+      setLoading(true);
+      try {
+       
+        const res = await asyncGet(`${api.findByID}?sid=${sid}`);
+        
+        if (res.code === 200 && res.body) {
+          setStudent(res.body);  
+        } else {
+          alert("找不到學生！");
+          setStudent(null);  
         }
+      } catch (error) {
+        console.error(error);
+        alert("查詢學生資料時發生錯誤。");
+      }
+      setLoading(false);
     }
+  };
 
-    const deleteHandler = async () => {
-        const res:resp<boolean> =await asyncDelete(`${api.deleteByID}?id=${_id}`)
-        if(res.code ==200){
-            if(res.body){
-                alert("刪除成功")
-            }
-            alert(`刪除失敗:${res.message}`)
-        }else{
-            alert(`刪除失敗:${res.message}`)
-        }
+  // Handle student data update
+  const handleUpdate = async (updatedStudent: Student) => {
+    if (!updatedStudent._id) return;  
+    try {
+      const res = await asyncPut(`${api.updateByID}/${updatedStudent._id}`, updatedStudent);
+      if (res.code === 200) {
+        alert("學生資料更新成功！");
+        setStudent(res.body);  
+      } else {
+        alert("更新學生資料失敗！");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("更新學生資料時發生錯誤。");
     }
+  };
 
-    useEffect(() => {
-        if(!cache.current && _id){
-            cache.current = true;
-            asyncGet(`${api.findByID}?id=${_id}`).then((res:resp<Student>) => {
-                if(res.code == 200){
-                    setStudent(res.body)
-                }
-            });
+  // Handle student data deletion
+  const handleDelete = async () => {
+    if (student && student._id) {
+      try {
+        const res = await asyncDelete(`${api.deleteByID}/${student._id}`);
+        if (res.code === 200) {
+          alert("學生資料刪除成功！");
+          setStudent(null); 
+        } else {
+          alert("刪除學生資料失敗！");
         }
-    },[])
+      } catch (error) {
+        console.error(error);
+        alert("刪除學生資料時發生錯誤。");
+      }
+    }
+  };
 
-    return (
-        <div className="container">
-            {
-                studentInfo?
-                <div className="update">
-                    <StudentInfo {...studentInfo} canEdit={true} canDelte={true} submit={submit} deleteHandler={deleteHandler} title="修改學生資料" submitText="確認修改" />
-                </div>
-                :
-                <div className="loading">
-                    loading
-                </div>
-            }
-        </div>
-    )
-}
+  return (
+    <div className="container">
+      <h2>更新學生資料</h2>
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="輸入學生ID (SID)"
+          value={sid}
+          onChange={(e) => setSid(e.target.value)}  
+        />
+        <button onClick={handleSearch} disabled={loading}>
+          {loading ? "載入中..." : "搜尋"}
+        </button>
+      </div>
+      {student ? (
+        <StudentInfo
+          {...student}
+          submit={handleUpdate}
+          deleteHandler={handleDelete}
+          title="編輯學生資料"
+          submitText="更新學生"
+          canDelete={true}
+          canEdit={true}
+        />
+      ) : (
+        <p>尚未選擇學生。</p> 
+      )}
+    </div>
+  );
+};

@@ -1,122 +1,145 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Student } from "../interface/Student";
-import React from 'react';
 
-type Info = {
-    onClick?: Function;
-    canEdit?: boolean;
-    submit?: (info: Student) => Promise<any>;
-    title?: string;
-    submitText?: string;
-    canDelte?: boolean;
-    deleteHandler?: Function;
-};
+type InfoProps = {
+  onClick?: () => void;
+  canEdit?: boolean;
+  submit?: (info: Student) => Promise<void>;
+  deleteHandler?: () => void;
+  title?: string;
+  submitText?: string;
+  canDelete?: boolean;
+} & Partial<Student>;
 
-export const StudentInfo: React.FC<Student & Info> = (student: Student & Info) => {
+export const StudentInfo: React.FC<InfoProps> = ({
+  title = "學生資料",
+  submitText = "確認新增",
+  canEdit = true,
+  canDelete = false,
+  submit,
+  deleteHandler,
+  onClick,
+  ...initialStudent
+}) => {
+  
+  const [info, setInfo] = useState<Student>({
+    _id: initialStudent._id || "",
+    userName: initialStudent.userName || "",
+    sid: initialStudent.sid || "",
+    name: initialStudent.name || "",
+    department: initialStudent.department || "",
+    grade: initialStudent.grade || "",
+    class: initialStudent.class || "",
+    Email: initialStudent.Email || "",
+    absences: initialStudent.absences || 0,
+  });
 
-    const clickHandler = () => {
-        if (student.onClick) {
-            student.onClick();
-        }
-    };
+  const handleChange = (field: keyof Student) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInfo((prev) => ({ ...prev, [field]: e.target.value }));
+  };
 
-    // 初始化 student 資料到 state
-    const [info, setInfo] = useState<Student>({
-        _id: student._id || "",
-        userName: student.userName || "",
-        sid: student.sid || "",
-        name: student.name || "",
-        department: student.department || "",
-        grade: student.grade || "",
-        class: student.class || "",
-        email: student.email || "",
-        absences: student.absences || 0
-    });
+  const handleSubmit = () => {
+    console.log("Submit button clicked!"); 
+    if (submit) {
+      submit(info);
+    }
+  };
 
-    const submit = () => {
-        if (student.submit) {
-            student.submit(info); // 提交更新的資料
-        }
-    };
+  const handleDelete = () => {
+    if (deleteHandler) {
+      deleteHandler();
+      console.log("删除成功");
+    }
+  };
 
-    return (
-        <div className="studentEdit" key={info._id} onClick={clickHandler}>
-            <div className="info">
-                <h1>{student.title}</h1>
-                <p>帳號:</p>
-                <input
-                    type="text"
-                    value={info.userName}
-                    onChange={(e) => {
-                        setInfo((prevInfo) => ({ ...prevInfo, userName: e.target.value }));
-                    }}
-                />
-            </div>
-            <div className="info">
-                <p>姓名:</p>
-                <input
-                    type="text"
-                    value={info.name}
-                    onChange={(e) => {
-                        setInfo((prevInfo) => ({ ...prevInfo, name: e.target.value }));
-                    }}
-                />
-            </div>
-            <div className="info">
-                <p>院系:</p>
-                <input
-                    type="text"
-                    value={info.department}
-                    onChange={(e) => {
-                        setInfo((prevInfo) => ({ ...prevInfo, department: e.target.value }));
-                    }}
-                />
-            </div>
-            <div className="info">
-                <p>年級:</p>
-                <input
-                    type="text"
-                    value={info.grade}
-                    onChange={(e) => {
-                        setInfo((prevInfo) => ({ ...prevInfo, grade: e.target.value }));
-                    }}
-                />
-            </div>
-            <div className="info">
-                <p>班級:</p>
-                <input
-                    type="text"
-                    value={info.class}
-                    onChange={(e) => {
-                        setInfo((prevInfo) => ({ ...prevInfo, class: e.target.value }));
-                    }}
-                />
-            </div>
-            <div className="info">
-                <p>Email:</p>
-                <input
-                    type="text"
-                    value={info.email}
-                    onChange={(e) => {
-                        setInfo((prevInfo) => ({ ...prevInfo, email: e.target.value }));
-                    }}
-                />
-            </div>
-            <div className="info">
-                <p>缺席次數:</p>
-                <input
-                    type="number"
-                    value={info.absences || 0}
-                    onChange={(e) => {
-                        setInfo((prevInfo) => ({ ...prevInfo, absences: Number(e.target.value) }));
-                    }}
-                />
-            </div>
-            <div className="btn">
-                <button className="submit" onClick={submit}>
-                    {student.submitText || "確認新增"}
-                </button>
-            </div>
+  const handleFormClick = (e: React.MouseEvent) => {
+    if (onClick && e.target instanceof HTMLElement && !e.target.closest(".form")) {
+      onClick();
+    }
+  };
+
+  return (
+    <div className="student-edit" onClick={handleFormClick}>
+      <h2>{title}</h2>
+      <div className="form">
+        <div className="form-group">
+          <label>帳號:</label>
+          <input
+            type="text"
+            value={info.userName}
+            onChange={handleChange("userName")}
+            disabled={!canEdit}
+          />
         </div>
-    );
+        <div className="form-group">
+          <label>姓名:</label>
+          <input
+            type="text"
+            value={info.name}
+            onChange={handleChange("name")}
+            disabled={!canEdit}
+          />
+        </div>
+        <div className="form-group">
+          <label>院系:</label>
+          <input
+            type="text"
+            value={info.department}
+            onChange={handleChange("department")}
+            disabled={!canEdit}
+          />
+        </div>
+        <div className="form-group">
+          <label>年級:</label>
+          <input
+            type="text"
+            value={info.grade}
+            onChange={handleChange("grade")}
+            disabled={!canEdit}
+          />
+        </div>
+        <div className="form-group">
+          <label>班級:</label>
+          <input
+            type="text"
+            value={info.class}
+            onChange={handleChange("class")}
+            disabled={!canEdit}
+          />
+        </div>
+        <div className="form-group">
+          <label>Email:</label>
+          <input
+            type="email"
+            value={info.Email}
+            onChange={handleChange("Email")}
+            disabled={!canEdit}
+          />
+        </div>
+        <div className="form-group">
+          <label>缺席次數:</label>
+          <input
+            type="number"
+            value={info.absences}
+            onChange={(e) =>
+              setInfo((prev) => ({ ...prev, absences: Number(e.target.value) }))
+            }
+            disabled={!canEdit}
+          />
+        </div>
+        <div className="button-group">
+          {submit && (
+            <button className="submit-btn" onClick={handleSubmit}>
+              {submitText}
+            </button>
+          )}
+          {canDelete && deleteHandler && (
+            <button className="delete-btn" onClick={handleDelete}>
+              刪除
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 };

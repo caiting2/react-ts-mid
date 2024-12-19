@@ -6,6 +6,6 @@ export interface Student {
     department: string;
     grade: string;
     class: string;
-    email: string;
+    Email: string;
     absences?: number | undefined;
 }

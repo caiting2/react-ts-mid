@@ -19,7 +19,7 @@ export async function asyncGet(api: string):Promise<any>{
 export async function asyncPost(api: string, body: {} | FormData) {
     const res: Response = await fetch(api, {
         method: 'POST',
-        credentials: 'include',
+        // credentials: 'include',
         headers:new Headers({
             'Access-Control-Allow-Origin':"http://localhost:5713/",
             'content-Type':"application/json"
